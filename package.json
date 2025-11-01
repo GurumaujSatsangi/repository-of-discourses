@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.78.0",
+    "body-parser": "^2.2.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
