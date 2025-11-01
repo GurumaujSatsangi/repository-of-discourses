@@ -12,14 +12,14 @@
 <body>
     <% if(message) { %>
        <script>
-    alert()
+    alert("<%= message %>")
        </script> 
     <% } %>
     <form action="/add" method="POST">
-        <input type="text" placeholder="Title" class="form-control">
-        <input type="text" placeholder="Link to Text File" class="form-control">
-        <input type="text" placeholder="Link to Audio File" class="form-control">
-        <input type="date" class="form-control">
+        <input type="text" name="title" placeholder="Title" class="form-control">
+        <input type="text" name="text_link" placeholder="Link to Text File" class="form-control">
+        <input type="text" name="audio_link" placeholder="Link to Audio File" class="form-control">
+        <input type="date" name="date" class="form-control">
         <input type="submit" value="Add" class="btn btn-primary">
     </form>
 </body>

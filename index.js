@@ -9,6 +9,8 @@ const app=express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.set("view engine", "ejs");
+
 
 dotenv.config();
 
@@ -26,10 +28,10 @@ const {data,error} = await supabase.from("content").insert(
 );
 
 if(error){
-    return res.render("/?message=There was some error adding the content.");
+    return res.redirect("/?message=There was some error adding the content.");
 }
 else{
-return res.render("/?message=Content Added Succesfully!");
+return res.redirect("/?message=Content Added Succesfully!");
 }
 });
 
