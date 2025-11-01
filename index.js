@@ -17,7 +17,8 @@ dotenv.config();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 app.get("/", async (req,res)=>{
-return res.render("add.ejs",{message:null});
+    const {message}=req.query;
+return res.render("add.ejs",{message: message || null});
 });
 
 app.post("/add", async(req,res)=>{
