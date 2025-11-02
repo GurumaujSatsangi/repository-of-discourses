@@ -28,8 +28,26 @@ app.get("/delete/:id",async(req,res)=>{
 })
 
 app.get("/edit/:id",async(req,res)=>{
-    const {data,error}=await supabase.from("content").select("*").eq("id",req.params.id);
-    return res.render("edit.ejs");
+    const message=req.query.message;
+    const {data,error}=await supabase.from("content").select("*").eq("id",req.params.id).single();
+    return res.render("edit.ejs",{message: message||null, content:data});
+})
+
+app.post("/edit",async(req,res)=>{
+    const {id,title,text_link,audio_link,date}=req.body;
+    const{data,error}=await supabase.from("content").update({
+        title,
+        text_link,
+        audio_link,
+        date
+    }).eq("id",id);
+
+    if(error){
+        return res.redirect("/?message=There was some error updating the content!")
+    }
+    else{
+        return res.redirect("/?message=Content updated succesfully!");
+    }
 })
 
 app.post("/add", async(req,res)=>{
