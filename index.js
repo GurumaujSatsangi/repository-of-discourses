@@ -22,6 +22,16 @@ app.get("/", async (req,res)=>{
 return res.render("add.ejs",{message: message || null, content: data});
 });
 
+app.get("/delete/:id",async(req,res)=>{
+    const {data,error}=await supabase.from("content").delete().eq("id",req.params.id);
+    return res.redirect("/?message=Content Deleted Succesfully!")
+})
+
+app.get("/edit/:id",async(req,res)=>{
+    const {data,error}=await supabase.from("content").select("*").eq("id",req.params.id);
+    return res.render("edit.ejs");
+})
+
 app.post("/add", async(req,res)=>{
 const {title,text_link,audio_link,date} = req.body;
 
