@@ -18,7 +18,8 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 
 app.get("/", async (req,res)=>{
     const {message}=req.query;
-return res.render("add.ejs",{message: message || null});
+    const {data, error}=await supabase.from("content").select("*");
+return res.render("add.ejs",{message: message || null, content: data});
 });
 
 app.post("/add", async(req,res)=>{
