@@ -93,6 +93,11 @@
           <input type="submit" value="Add" class="btn btn-primary" />
         </div>
       </form>
+      <form action="/" method="GET" class="d-flex mb-3">
+    <input class="form-control me-2" type="search" name="search" placeholder="Search content" aria-label="Search" value="<%= search %>">
+    <input type="date" name="filter_date" class="form-control me-2" aria-label="Date filter" value="<%= filter_date %>">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
       <hr />
       <% if(content && content.length > 0) { %>
 

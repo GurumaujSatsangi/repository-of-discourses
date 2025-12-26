@@ -17,9 +17,19 @@ dotenv.config();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 app.get("/", async (req,res)=>{
-    const {message}=req.query;
-    const {data, error}=await supabase.from("content").select("*");
-return res.render("add.ejs",{message: message || null, content: data});
+    const {message, search, filter_date}=req.query;
+    let query = supabase.from("content").select("*");
+    
+    if(search && search.trim() !== "") {
+        query = query.or(`title.ilike.%${search}%,text_link.ilike.%${search}%,audio_link.ilike.%${search}%`);
+    }
+    
+    if(filter_date && filter_date.trim() !== "") {
+        query = query.eq("date", filter_date);
+    }
+    
+    const {data, error}= await query;
+    return res.render("add.ejs",{message: message || null, content: data, search: search || "", filter_date: filter_date || ""});
 });
 
 app.get("/delete/:id",async(req,res)=>{
