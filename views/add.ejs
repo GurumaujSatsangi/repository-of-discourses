@@ -102,6 +102,17 @@
 
         <% content.forEach(function(item) { %>
 
+          <div class="card">
+  <div class="card-header">
+   <b> <%= item.title %></b>
+  </div>
+  <div class="card-body">
+    <h6 class="card-title">Date of Discourse: <%= item.date %> | Uploaded on: <%= item.timestamp %></h6>
+    <p class="card-text"><a target="_blank" class="btn btn-outline-primary" href="<%= item.text_link %>">View Transcript <i class="bi bi-eye-fill"></i></a>
+    <a target="_blank" class="btn btn-outline-primary" href="<%= item.audio_link %>">Play Audio <i class="bi bi-eye-fill"></i></a></p>
+  </div>
+</div><br>
+
             <tr>
             <td><%= item.title %></td>
             <td><a target="_blank" href="<%= item.text_link %>"><i class="bi bi-eye-fill"></i></a></td>
