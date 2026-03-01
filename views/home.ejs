@@ -3,35 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-        <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
-    />
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
-      integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
-      integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <title>Repository of Discourses</title>
+    <link rel="stylesheet" href="/styles.css">
+       
 </head>
 <body>
+  <%- include('partials/navbar') %>
     <div class="container">
       <center>
-        <h4>Repository of Discourses</h4><hr>
         <img class="rounded" style="border: 1px solid black" width="10%" height="10%" src="https://www.dayalbagh.org.in/images/Approved_Latest_Gracious_Swarup.jpg">
         <h6>delivered by Most Revered Prof. Prem Saran Satsangi Sahab</h6>
         <h6>Chairman, Advisory Committee on Education, Dayalbagh Educational Institute</h6>
@@ -79,7 +58,82 @@
   </div>
 </div>
 
+  <div class="accordion" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+       <i class="bi bi-info-circle-fill"></i> &nbsp; About Conference Management Toolkit
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+
+<br>
+<b>An Integrated Toolkit for End-to-End Conference Management</b>
+<Br>
+Conference Management Toolkit is a secure web platform designed to simplify end-to-end academic conference management — 
+    from paper submission to review, scheduling, and result generation. 
+    Users sign in with their Google account to access personalized dashboards for submission, review, and administrative workflows.<ul><Br>
+
+  <li><b>Conference Hosting:</b> Conference chairs can initiate and configure new conferences, define submission deadlines, assign reviewers, and oversee the entire operational flow through a dedicated administrative dashboard.
+</li>
+<li><b>Submission and Collaboration:</b> Primary authors can submit their initial papers through a secure portal. Upon submission, a unique paper code is generated, which can be shared with co-authors to grant them access for collaboration and contribution to the manuscript.
+</li>
+
+<li>
+<b>Peer Review and Decision:</b> Once submitted, papers are assigned to reviewers for evaluation. Based on the collective feedback and scores from the review process, a decision (e.g., Accepted, Minor/Major Revisions, Rejected) is made. Authors are notified automatically and, if accepted, are prompted to submit the final, camera-ready version of their paper.
+
+</li>
+
+<li>
+<b>Scheduling and Presentation:</b> Following the final submission, the system schedules the presentation slots and informs the authors of the confirmed date and time. This information is updated in real-time on the user's personal dashboard.
+
+</li>
+
+<li>
+<b>Live Evaluation and Result Generation:</b> During the conference presentation, designated panelists can access a digital evaluation form directly on the platform. They can submit scores and qualitative remarks in real-time. The system then aggregates all review scores and panelist feedback to automatically calculate and generate the final results, ensuring a transparent and efficient evaluation process.      </div>
+
+</li>
+</ul>
+
+
+
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+       <i class="bi bi-info-circle-fill"></i>&nbsp; About DEI Multimedia Laboratory
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+Our state-of-the-art Multimedia Laboratory serves as the dynamic hub of the Institute's global digital education initiatives. Equipped with professional-grade cameras, advanced projection systems, and high-performance video editing stations, this central facility is dedicated to producing engaging e-content for our distance education programmes. Furthermore, the laboratory is regularly utilized to broadcast live lectures and host real-time interactive sessions, seamlessly connecting our faculty with students in remote classrooms across India and internationally. A skilled team of technical staff oversees all operations, ensuring a flawless and professional execution of our commitment to accessible, technology-driven learning.    <br>
+</div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+       <i class="bi bi-info-circle-fill"></i>&nbsp; About Dayalbagh Educational Institute
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+The Dayalbagh Educational Institute (DEI), declared a Deemed University by the Government of India in 1981, is a multidisciplinary institution with faculties in Arts, Commerce, Education, Engineering, Science, and Social Sciences. Located in the self-contained colony of Dayalbagh near Agra, the Institute has grown significantly since its origin as the Radhasoami Educational Institute in 1917, integrating various colleges and schools over the decades, including a technical college, intermediate colleges, and a women's polytechnic. Committed to an innovative and comprehensive educational philosophy that balances excellence with relevance and inculcates values of humanism and secularism, DEI is open to all irrespective of background. The Institute is well-equipped with central facilities and hosts advanced research hubs like the 'Quantum and Nano-Computing Virtual Centre' and the 'Centre for Consciousness Studies'. Recognized for its quality, DEI was ranked 8th among 126 Deemed Universities by the MHRD in 2009 and accredited with an 'A' Grade by NAAC in 2013. It also plays a vital role in skill development through its distance education programmes, vocational courses, and its partnership with the Uttar Pradesh Skill Development Mission.      </div>
+    </div>
+  </div>
+</div>
+
 
    </div>
+
+   <%- include('partials/footer') %>
+
+
+ 
+
+
+
 </body>
 </html>

@@ -6,9 +6,20 @@ import bodyParser from "body-parser";
 import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
 import { createClient } from '@supabase/supabase-js';
+import { fileURLToPath } from "url";
+import path from "path";
+
+
 
 
 const app=express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static("public"));
+app.set("view engine", "ejs");
+app.use("/static", express.static(path.join(__dirname, "public")));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -91,9 +102,6 @@ app.get("/logout", (req, res) => {
 
   return res.redirect("/?message=Logged out successfully");
 });
-
-
-
 
 app.get("/", async (req,res)=>{
     const {message, search, filter_date}=req.query;
