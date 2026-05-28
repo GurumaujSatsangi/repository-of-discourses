@@ -1,6 +1,9 @@
 import express from "express";
 import session from "express-session";
 import dotenv from "dotenv";
+import { v4 as uuidv4 } from 'uuid'; // npm i uuid
+import { QdrantClient } from '@qdrant/js-client-rest';
+import { pipeline } from '@xenova/transformers';
 import bcrypt from 'bcrypt';
 import bodyParser from "body-parser";
 import jwt from 'jsonwebtoken';
@@ -28,6 +31,72 @@ app.set("view engine", "ejs");
 
 
 dotenv.config();
+
+let extractor;
+
+async function getExtractor() {
+    if (!extractor) {
+        // Loads the model locally the first time it runs
+        extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    }
+    return extractor;
+}
+
+async function generateVector(text) {
+    const extract = await getExtractor();
+    const output = await extract(text, { pooling: 'mean', normalize: true });
+    return Array.from(output.data);
+}
+
+const client = new QdrantClient({ url: process.env.QDRANT_ENDPOINT, apiKey: process.env.QDRANT_API_KEY });
+
+
+async function setupDatabase() {
+    // Create a collection configured for our specific model
+    await client.createCollection('repository_semantic_texts', {
+        vectors: {
+            size: 384, // The dimension size for all-MiniLM-L6-v2
+            distance: 'Cosine',
+        },
+    });
+    console.log("Collection created!");
+}
+
+
+const text = "Hi, My name is Gurumauj Satsangi. I am from Kolkata."
+const author = "Gurumauj"
+
+// const vector = await generateVector(text);
+    
+//     // 2. Store in Qdrant with a unique ID and the original text as payload
+//     await client.upsert('repository_semantic_texts', {
+//         wait: true,
+//         points: [
+//             {
+//                 id: uuidv4(),
+//                 vector: vector,
+//                 payload: { text: text, author: author }
+//             }
+//         ]
+//     });
+
+
+    const queryText = "Gurumauj from Kolkata"
+
+const queryVector = await generateVector(queryText);
+    
+    // 2. Search Qdrant for the closest matches
+    const searchResults = await client.search('repository_semantic_texts', {
+        vector: queryVector,
+        limit: 5, // Top 5 results
+        with_payload: true, // Return the original text, not just the ID
+    });
+
+    console.log(searchResults);
+
+// setupDatabase()
+
+
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
