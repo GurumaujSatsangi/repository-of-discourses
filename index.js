@@ -52,19 +52,79 @@ async function setupDatabase() {
     });
     console.log("Collection created!");
 }
+app.post("/generate-vector/:id", checkAuth, async (req, res) => {
+    const item_id = req.params.id;
 
-const text = "Hi, My name is Gurumauj Satsangi. I am from Kolkata.";
-const author = "Gurumauj";
-const queryText = "Gurumauj from Kolkata";
+    try {
+        // 1. Fetch text data from Supabase using .single() to get an object instead of an array
+        const { data, error } = await supabase
+            .from("content")
+            .select("text")
+            .eq("id", item_id)
+            .single();
 
-// Example vector search logic (commented out as in original)
-// const queryVector = await generateVector(queryText);
-// const searchResults = await client.search('repository_semantic_texts', {
-//     vector: queryVector,
-//     limit: 5,
-//     with_payload: true,
-// });
-// console.log(searchResults);
+        if (error || !data || !data.text) {
+            return res.redirect("/add?message=Error: Text content not found for vector generation.");
+        }
+
+        console.log("Generating vector for text:", data.text);
+
+        // 2. Generate the 384-dimensional vector embedding via Xenova
+        const resultVector = await generateVector(data.text);
+
+        // 3. Upsert the generated vector into Qdrant Cloud
+        await client.upsert('repository_semantic_texts', {
+            wait: true,
+            points: [
+                {
+                    id: item_id, // Match the exact ID from your relational database
+                    vector: resultVector,
+                    payload: {
+                        text: data.text,
+                        supabase_id: item_id
+                    }
+                }
+            ]
+        });
+
+        // 4. Update vector status flag back in your Supabase table
+        const { error: updateError } = await supabase
+            .from("content")
+            .update({ "vector_status": "GENERATED" })
+            .eq("id", item_id);
+
+        if (updateError) {
+            console.error("Supabase status update failed:", updateError);
+        }
+
+        // 5. Always redirect or respond to prevent the request from hanging
+        return res.redirect("/add?message=Vector generated and synced to Qdrant successfully!");
+
+    } catch (err) {
+        console.error("Unhandled error in vector generation route:", err);
+        return res.redirect(`/add?message=Error processing vector generation: ${err.message}`);
+    }
+});
+
+
+app.post("/generate-vector",checkAuth,async(req,res)=>{
+
+    const {query} = req.body;
+    const queryVector = await generateVector(query);
+
+    const searchResults = await client.search('repository_semantic_texts', {
+    vector: queryVector,
+    limit: 5,
+    with_payload: true,
+    });
+    console.log(searchResults);
+
+
+    res.render("output.ejs",{searchResults});
+
+})
+
+
 
 // --- Supabase Setup ---
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
