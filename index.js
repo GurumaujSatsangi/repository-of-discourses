@@ -124,6 +124,15 @@ app.post("/generate-vector",checkAuth,async(req,res)=>{
 
 })
 
+app.get("/view/:itemid",checkAuth,async(req,res)=>{
+    const item_id = req.params.itemid;
+    const {data,error} = await supabase.from("content").select("*").eq("id",item_id).single();
+
+    if(data){
+        return res.render("view.ejs",{data});
+    }
+})
+
 
 
 // --- Supabase Setup ---

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('./partials/dashboard/navbar') %>
+    <div class="container">
+        <h4><%= data.title %></h4>
+        <h5>Date: <%= data.date %></h5>
+        <a target="_blank" class="btn btn-primary btn-sm" href="<%= data.audio_link %>">Audio File</a>
+        <a target="_blank" class="btn btn-primary btn-sm" href="<%= data.text_link %>">Transcript</a>
+        <a target="_blank" class="btn btn-warning btn-sm" href="/add">Go Back to Dashboard</a>
+
+        <hr>
+
+        <p class="small" align="justify">
+            <%= data.text %>
+        </p>
+
+    </div>
+    <%- include('partials/footer') %>
+</body>
+</html>
