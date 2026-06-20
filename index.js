@@ -120,7 +120,7 @@ app.post("/generate-vector",checkAuth,async(req,res)=>{
     console.log(searchResults);
 
 
-    res.render("output.ejs",{searchResults});
+    res.render("output.ejs",{searchResults, query});
 
 })
 

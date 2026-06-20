@@ -4,18 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+    <%- include('./partials/dashboard/navbar') %>
+
+    <div class="container">
+        <h4>Semantic Search Results</h4>
+        <h6>Query: <%= query %></h6>
+
+        <form action="/generate-vector" method="post">
+            <input type="text" name="query" class="form-control" placeholder="Looking for something else? Type here.">
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        </form>
+        <hr>
     <% if(searchResults && searchResults.length>0){ %>
 
-        <ul>
-        <% searchResults.forEach(function(searchResults){ %>
+        <table class="table">
+            <tr>
+                <th>
+                    SIMILARITY
+                </th>
+                <th>
+                    VIEW
+                </th>
+            </tr>
+
+        <% searchResults.forEach(function(searchResults,index){ %>
+
+           <tr>
+            <td><%= searchResults.score %></td>
+            <td><a href="/view/<%= searchResults.id %>">CLICK HERE</a></td>
+           </tr>
 
 
-        <li>SIMILARITY: <%= searchResults.score %> <br><%= searchResults.payload.text %></li>
+        
         
         <% }) %>
-        </ul>
-    <% }%>
+
+                           </table>
+
+    <% } else { %>
+
+        <p class="small">No Similar Documents Found!</p>
+
+        <% } %>
+</div>
+    <%- include('partials/footer') %>
 </body>
 </html>
