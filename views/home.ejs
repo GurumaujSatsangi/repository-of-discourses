@@ -10,13 +10,7 @@
 <body>
   <%- include('partials/navbar') %>
     <div class="container">
-      <center>
-        <img class="rounded" style="border: 1px solid black" width="10%" height="10%" src="https://www.dayalbagh.org.in/images/Approved_Latest_Gracious_Swarup.jpg">
-        <h6>delivered by Most Revered Prof. Prem Saran Satsangi Sahab</h6>
-        <h6>Chairman, Advisory Committee on Education, Dayalbagh Educational Institute</h6>
-        <h6>and Eight Acclaimed Vaqt Sant Satguru of the <u>Ra</u> <u>Dha</u> <u>Sva</u> <u>Aa</u> <u>Mi</u> Faith Dayalbagh, Agra-282005, Uttar Pradesh, India</h6>
-   <hr>   
-</center>
+    
 <% if(message) { %>
     <script>
       Swal.fire({
@@ -40,20 +34,15 @@
     <% } %>
 <div class="card">
   <div class="card-header">
-   <b>Login with your credentials to access the portal</b> 
+   <b>Sign In</b> 
   </div>
   <div class="card-body">
   <form action="/user-login" method="post">
   <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <input type="email" name="email" required class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
   </div>
-  <div class="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Password</label>
-    <input type="password" name="password" class="form-control" id="exampleInputPassword1">
-  </div>
-
-  <button type="submit" class="btn btn-primary">Login</button>
+  <button type="submit" class="btn btn-primary">Send Magic Link</button>
 </form>
   </div>
 </div>
@@ -62,39 +51,16 @@
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-       <i class="bi bi-info-circle-fill"></i> &nbsp; About Conference Management Toolkit
+       <i class="bi bi-info-circle-fill"></i> &nbsp; About Repository of Discourses
       </button>
     </h2>
     <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
       <div class="accordion-body">
 
-<br>
-<b>An Integrated Toolkit for End-to-End Conference Management</b>
-<Br>
-Conference Management Toolkit is a secure web platform designed to simplify end-to-end academic conference management — 
-    from paper submission to review, scheduling, and result generation. 
-    Users sign in with their Google account to access personalized dashboards for submission, review, and administrative workflows.<ul><Br>
+Coming Soon!
+ </div>
 
-  <li><b>Conference Hosting:</b> Conference chairs can initiate and configure new conferences, define submission deadlines, assign reviewers, and oversee the entire operational flow through a dedicated administrative dashboard.
-</li>
-<li><b>Submission and Collaboration:</b> Primary authors can submit their initial papers through a secure portal. Upon submission, a unique paper code is generated, which can be shared with co-authors to grant them access for collaboration and contribution to the manuscript.
-</li>
 
-<li>
-<b>Peer Review and Decision:</b> Once submitted, papers are assigned to reviewers for evaluation. Based on the collective feedback and scores from the review process, a decision (e.g., Accepted, Minor/Major Revisions, Rejected) is made. Authors are notified automatically and, if accepted, are prompted to submit the final, camera-ready version of their paper.
-
-</li>
-
-<li>
-<b>Scheduling and Presentation:</b> Following the final submission, the system schedules the presentation slots and informs the authors of the confirmed date and time. This information is updated in real-time on the user's personal dashboard.
-
-</li>
-
-<li>
-<b>Live Evaluation and Result Generation:</b> During the conference presentation, designated panelists can access a digital evaluation form directly on the platform. They can submit scores and qualitative remarks in real-time. The system then aggregates all review scores and panelist feedback to automatically calculate and generate the final results, ensuring a transparent and efficient evaluation process.      </div>
-
-</li>
-</ul>
 
 
 

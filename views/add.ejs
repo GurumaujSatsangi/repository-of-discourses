@@ -27,9 +27,11 @@
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <% if(message) { %>
+
+<%- include('./partials/dashboard/navbar') %>    <% if(message) { %>
     <script>
       Swal.fire({
         title: "Alert",
@@ -51,15 +53,7 @@
     </script>
     <% } %>
     <div class="container">
-      <center>
-        <h4>Repository of Discourses</h4><hr>
-        <img class="rounded" style="border: 1px solid black" width="10%" height="10%" src="https://www.dayalbagh.org.in/images/Approved_Latest_Gracious_Swarup.jpg">
-        <h6>delivered by Most Revered Prof. Prem Saran Satsangi Sahab</h6>
-        <h6>Chairman, Advisory Committee on Education, Dayalbagh Educational Institute</h6>
-        <h6>and Eight Acclaimed Vaqt Sant Satguru of the <u>Ra</u> <u>Dha</u> <u>Sva</u> <u>Aa</u> <u>Mi</u> Faith Dayalbagh, Agra-282005, Uttar Pradesh, India</h6>
-   <hr>   
-  <h7><b>You are logged in as <%= user.name%> (<%=user.email %>).</b> <a class="btn btn-outline-danger" href="/logout">Logout</a></h7><hr>
-  </center>
+     <h4>Welcome, <%= user.email %>!</h4>
       <form action="/add" method="POST">
         <div class="mb-3">
           <input
@@ -95,7 +89,7 @@
           <input type="submit" value="Add" class="btn btn-primary" />
         </div>
       </form>
-      <form action="/" method="GET" class="d-flex mb-3">
+      <form action="/add" method="GET" class="d-flex mb-3">
     <input class="form-control me-2" type="search" name="search" placeholder="Search content" aria-label="Search" value="<%= search %>">
     <input type="date" name="filter_date" class="form-control me-2" aria-label="Date filter" value="<%= filter_date %>">
     <button class="btn btn-outline-success" type="submit">Search</button>
@@ -128,6 +122,7 @@
       <p>No content to display.</p>
       <% } %>
     </div>
+    <%- include('./partials/footer') %>
   </body>
   <style>
     .container {
