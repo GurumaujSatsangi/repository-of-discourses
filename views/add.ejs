@@ -54,6 +54,7 @@
     <% } %>
     <div class="container">
      <h4>Welcome, <%= user.email %>!</h4>
+     <hr><h4>Add New Discourse</h4>
       <form action="/add" method="POST">
         <div class="mb-3">
           <input
@@ -89,41 +90,58 @@
           <input type="submit" value="Add" class="btn btn-primary" />
         </div>
       </form>
+      <h4>Available Discourses</h4>
       <form action="/generate-vector" method="post" class="d-flex mb-3">
-    <input class="form-control me-2" type="search" name="query" placeholder="Search content" aria-label="Search" value="<%= search %>">
-    <input type="date" name="filter_date" class="form-control me-2" aria-label="Date filter" value="<%= filter_date %>">
-    <button class="btn btn-outline-success" type="submit">Search</button>
+    <input class="form-control" type="search" name="query" placeholder="Search content" aria-label="Search">
+    <button class="btn btn-outline-success btn-sm" type="submit">Search</button>
 </form>
       <hr />
       <% if(content && content.length > 0) { %>
-
-  
-
-        <% content.forEach(function(item) { %>
-
-          <div class="card">
-  <div class="card-header">
-   <b> <%= item.title %></b>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    <% content.forEach(function(item) { %>
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          
+          <div class="card-header">
+            <h5 class="mb-0"><%= item.title %></h5>
+          </div>
+          
+          <div class="card-body d-flex flex-column">
+            <h6 class="card-subtitle mb-3 text-muted" style="font-size: 0.85rem;">
+              <i>Date of Discourse: <%= item.date %><br>Uploaded on: <%= item.timestamp %></i>
+            </h6>
+            
+            <div class="mt-auto d-flex flex-wrap gap-2">
+              <a target="_blank" class="btn btn-outline-primary btn-sm" href="<%= item.text_link %>">
+                Transcript <i class="bi bi-file-earmark-text-fill"></i>
+              </a>
+              <a target="_blank" class="btn btn-outline-primary btn-sm" href="<%= item.audio_link %>">
+                Audio <i class="bi bi-file-earmark-music-fill"></i>
+              </a>
+              
+              <form action="/generate-vector/<%= item.id %>" method="post" class="m-0">
+                <button class="btn btn-outline-info btn-sm" type="submit">Vector</button>
+              </form>
+              
+              <a class="btn btn-outline-warning btn-sm" href="/edit/<%=item.id %>">
+                Edit <i class="bi bi-pencil-square"></i>
+              </a>
+              <a class="btn btn-outline-danger btn-sm" href="/delete/<%=item.id %>">
+                Delete <i class="bi bi-trash3-fill"></i>
+              </a>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    <% }) %>
   </div>
-  <div class="card-body">
-    <h6 class="card-title"><i>Date of Discourse: <%= item.date %> | Uploaded on: <%= item.timestamp %></i></h6>
-    <p class="card-text"><a target="_blank" class="btn btn-outline-primary btn-sm" href="<%= item.text_link %>">Open Transcript <i class="bi bi-file-earmark-text-fill"></i></a>
-    <a target="_blank" class="btn btn-outline-primary btn-sm" href="<%= item.audio_link %>">Play Audio <i class="bi bi-file-earmark-music-fill"></i></a>
-    <form action="/generate-vector/<%= item.id %>" method="post">
-      <button class="btn btn-outline-info btn-sm" type="submit">Generate Vector</button>
-    </form>
-    <a class="btn btn-outline-warning btn-sm" href="/edit/<%=item.id %>">Edit <i class="bi bi-pencil-square"></i></a>
-  <a class="btn btn-outline-danger btn-sm" href="/delete/<%=item.id %>">Delete <i class="bi bi-trash3-fill"></i></a></p>
 
+<% } else { %>
+  <div class="alert alert-info text-center mt-4" role="alert">
+    No content to display.
   </div>
-</div><br>
-
-        <% }) %>
-      
-
-      <% } else { %>
-      <p>No content to display.</p>
-      <% } %>
+<% } %>
     </div>
     <%- include('./partials/footer') %>
   </body>
