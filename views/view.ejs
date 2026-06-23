@@ -25,28 +25,40 @@
 
         <% if(result && result.length>0)  {%>
 
-            <table class="table">
-                <tr>
-                    <th>WORD</th>
-                    <th>ENTITY</th>
-                    <th>SCORE</th>
-                </tr>
+           
 
             <% result.forEach(function(result){ %>
 
-               <tr>
-                <td><%= result.word %></td>
-                                <td><%= result.entity %></td>
-                                                <td><%= result.score %></td>
+                <% if(result.entity=='PER') { %>
 
+                    <span class="badge text-bg-primary"><%= result.word %> (SCORE: <%= Math.round(result.score*100) %>%)</span>
 
                 
+                <% } else if (result.entity == 'ORG') { %>
 
-               </tr>
-            
+                        <span class="badge text-bg-warning"><%= result.word %> (SCORE: <%= Math.round(result.score*100) %>%)</span>
+
+
+                    <% } else if (result.entity == 'MISC') {%>
+                        <span class="badge text-bg-secondary"><%= result.word %> (SCORE: <%= Math.round(result.score*100) %>%)</span>
+
+             
+            <% } %>
+
+         
             
             <% }) %>
-                    </table>
+<hr>
+               <table class="table">
+                <tr>
+                    <th colspan="3">LEGEND</th>
+                </tr>
+                <tr>
+                    <td><span class="badge text-bg-secondary">MISC</span></td>
+                    <td><span class="badge text-bg-primary">PER</span></td>
+                    <td><span class="badge text-bg-warning">ORG</span></td>
+                </tr>
+            </table>
 
         <% } else { %>
             <p class="small">No Data Found!</p>

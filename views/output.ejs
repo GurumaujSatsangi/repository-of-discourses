@@ -33,8 +33,8 @@
         <% searchResults.forEach(function(searchResults,index){ %>
 
            <tr>
-            <td><%= searchResults.score %></td>
-            <td><a target="_blank" href="/view/<%= searchResults.id %>">CLICK HERE</a></td>
+            <td><%= searchResults.score*100 %></td>
+            <td><a target="_blank" class="btn btn-primary btn-sm" href="/view/<%= searchResults.id %>">CLICK HERE</a></td>
            </tr>
 
 
