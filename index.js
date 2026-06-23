@@ -4,14 +4,16 @@ import dotenv from "dotenv";
 import { v4 as uuidv4 } from 'uuid';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { pipeline } from '@xenova/transformers';
+
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from "url";
 import path from "path";
 
-const app = express();
+dotenv.config();
 
+const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -23,11 +25,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-dotenv.config();
+// --- Supabase Setup ---
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    auth: {
+        flowType: 'pkce',
+    },
+});
 
-// --- Qdrant & AI Setup (Left Intact) ---
+// --- Qdrant & AI Setup ---
 let extractor;
-
 async function getExtractor() {
     if (!extractor) {
         extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
@@ -52,11 +58,105 @@ async function setupDatabase() {
     });
     console.log("Collection created!");
 }
+
+// --- NER Token Aggregator Helper ---
+function formatAndGroupEntities(rawTokens) {
+    const groupedEntities = [];
+    let currentEntity = null;
+
+    for (const token of rawTokens) {
+        const isSubword = token.word.startsWith('##');
+        const cleanWord = token.word.replace(/^##/, '');
+        const entityCategory = token.entity.replace(/^[BI]-/, '');
+
+        if (token.entity.startsWith('B-')) {
+            if (currentEntity) {
+                groupedEntities.push(currentEntity);
+            }
+            currentEntity = {
+                word: cleanWord,
+                entity: entityCategory,
+                score: token.score
+            };
+        } else if (token.entity.startsWith('I-') && currentEntity && currentEntity.entity === entityCategory) {
+            if (isSubword) {
+                currentEntity.word += cleanWord;
+            } else {
+                currentEntity.word += ' ' + cleanWord;
+            }
+            // Retain the average score or lowest confidence score for safety
+            if (token.score < currentEntity.score) {
+                currentEntity.score = token.score;
+            }
+        }
+    }
+    if (currentEntity) {
+        groupedEntities.push(currentEntity);
+    }
+    return groupedEntities;
+}
+
+async function extractEntities(longText) {
+    if (!longText) return [];
+    
+    const classifier = await pipeline('token-classification', 'Xenova/bert-base-NER');
+
+    // Split paragraphs into individual sentences to safe-guard against the 512 token limit
+    const sentences = longText.match(/[^.!?]+[.!?]+/g) || [longText];
+    const rawEntities = [];
+
+    for (const sentence of sentences) {
+        const tokens = await classifier(sentence.trim());
+        rawEntities.push(...tokens);
+    }
+
+    // Process the messy tokens into human-readable words
+    return formatAndGroupEntities(rawEntities);
+}
+
+// --- Auth Middleware ---
+async function checkAuth(req, res, next) {
+    const accessToken = req.cookies['sb-access-token'];
+
+    if (!accessToken) {
+        return res.redirect("/?message=Session Expired, Login using your credentials!");
+    }
+
+    try {
+        const { data, error } = await supabase.auth.getUser(accessToken);
+        if (error || !data.user) {
+            return res.redirect("/?message=Session Expired, Login using your credentials!");
+        }
+        req.user = data.user;
+        next();
+    } catch (err) {
+        return res.redirect("/?message=Session Expired, Login using your credentials!");
+    }
+}
+
+// --- Routes ---
+
+app.get("/view/:itemid", checkAuth, async (req, res) => {
+    const item_id = req.params.itemid;
+    try {
+        const { data, error } = await supabase.from("content").select("*").eq("id", item_id).single();
+
+        if (error || !data) {
+            return res.redirect("/add?message=Content not found.");
+        }
+
+        const result = await extractEntities(data.text);
+        return res.render("view.ejs", { data, result });
+    } catch (err) {
+        console.error("Error in view route:", err);
+        return res.redirect("/add?message=Error processing NER parsing.");
+    }
+});
+
 app.post("/generate-vector/:id", checkAuth, async (req, res) => {
     const item_id = req.params.id;
 
     try {
-        // 1. Fetch text data from Supabase using .single() to get an object instead of an array
         const { data, error } = await supabase
             .from("content")
             .select("text")
@@ -68,16 +168,13 @@ app.post("/generate-vector/:id", checkAuth, async (req, res) => {
         }
 
         console.log("Generating vector for text:", data.text);
-
-        // 2. Generate the 384-dimensional vector embedding via Xenova
         const resultVector = await generateVector(data.text);
 
-        // 3. Upsert the generated vector into Qdrant Cloud
         await client.upsert('repository_semantic_texts', {
             wait: true,
             points: [
                 {
-                    id: item_id, // Match the exact ID from your relational database
+                    id: item_id,
                     vector: resultVector,
                     payload: {
                         text: data.text,
@@ -87,7 +184,6 @@ app.post("/generate-vector/:id", checkAuth, async (req, res) => {
             ]
         });
 
-        // 4. Update vector status flag back in your Supabase table
         const { error: updateError } = await supabase
             .from("content")
             .update({ "vector_status": "GENERATED" })
@@ -97,7 +193,6 @@ app.post("/generate-vector/:id", checkAuth, async (req, res) => {
             console.error("Supabase status update failed:", updateError);
         }
 
-        // 5. Always redirect or respond to prevent the request from hanging
         return res.redirect("/add?message=Vector generated and synced to Qdrant successfully!");
 
     } catch (err) {
@@ -106,67 +201,18 @@ app.post("/generate-vector/:id", checkAuth, async (req, res) => {
     }
 });
 
-
-app.post("/generate-vector",checkAuth,async(req,res)=>{
-
-    const {query} = req.body;
+app.post("/generate-vector", checkAuth, async (req, res) => {
+    const { query } = req.body;
     const queryVector = await generateVector(query);
 
     const searchResults = await client.search('repository_semantic_texts', {
-    vector: queryVector,
-    limit: 5,
-    with_payload: true,
+        vector: queryVector,
+        limit: 5,
+        with_payload: true,
     });
-    console.log(searchResults);
 
-
-    res.render("output.ejs",{searchResults, query});
-
-})
-
-app.get("/view/:itemid",checkAuth,async(req,res)=>{
-    const item_id = req.params.itemid;
-    const {data,error} = await supabase.from("content").select("*").eq("id",item_id).single();
-
-    if(data){
-        return res.render("view.ejs",{data});
-    }
-})
-
-
-
-// --- Supabase Setup ---
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-  auth: {
-    flowType: 'pkce', // This forces Supabase to return a '?code=' instead of an '#access_token='
-  },
+    res.render("output.ejs", { searchResults, query });
 });
-// --- Auth Middleware ---
-async function checkAuth(req, res, next) {
-    // 1. Get the access token set by the callback
-    const accessToken = req.cookies['sb-access-token'];
-
-    if (!accessToken) {
-        return res.redirect("/?message=Session Expired, Login using your credentials!");
-    }
-
-    try {
-        // 2. Validate the token directly with Supabase
-        const { data, error } = await supabase.auth.getUser(accessToken);
-
-        if (error || !data.user) {
-            return res.redirect("/?message=Session Expired, Login using your credentials!");
-        }
-
-        // 3. Attach the Supabase user object to the request
-        req.user = data.user;
-        next();
-    } catch (err) {
-        return res.redirect("/?message=Session Expired, Login using your credentials!");
-    }
-}
-
-// --- Routes ---
 
 app.post("/user-login", async (req, res) => {
     const { email } = req.body;
@@ -178,16 +224,15 @@ app.post("/user-login", async (req, res) => {
     const { data, error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-            // Point this directly to your Node server callback endpoint
             emailRedirectTo: 'http://localhost:3000/auth/callback',
         },
     });
 
     if (error) {
-        return res.redirect("/?message="+error.message);
+        return res.redirect("/?message=" + error.message);
     }
 
-    return res.redirect("/?message=Sign In Link has been sent to your Email ID! Check for an Email with the subject - Your sign-in link.");
+    return res.redirect("/?message=Sign In Link has been sent to your Email ID!");
 });
 
 app.get('/auth/callback', async (req, res) => {
@@ -212,13 +257,11 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.get("/logout", async (req, res) => {
-    // Optionally tell Supabase to invalidate the session on their end
     const accessToken = req.cookies['sb-access-token'];
     if (accessToken) {
         await supabase.auth.admin.signOut(accessToken).catch(() => {});
     }
 
-    // Clear the specific Supabase cookies we set
     res.clearCookie("sb-access-token", { httpOnly: true });
     res.clearCookie("sb-refresh-token", { httpOnly: true });
 
@@ -258,7 +301,7 @@ app.get("/add", checkAuth, async (req, res) => {
 });
 
 app.get("/delete/:id", checkAuth, async (req, res) => {
-    const { data, error } = await supabase.from("content").delete().eq("id", req.params.id);
+    await supabase.from("content").delete().eq("id", req.params.id);
     return res.redirect("/?message=Content Deleted Succesfully!");
 });
 
@@ -270,12 +313,7 @@ app.get("/edit/:id", checkAuth, async (req, res) => {
 
 app.post("/edit", checkAuth, async (req, res) => {
     const { id, title, text_link, audio_link, date } = req.body;
-    const { data, error } = await supabase.from("content").update({
-        title,
-        text_link,
-        audio_link,
-        date
-    }).eq("id", id);
+    const { error } = await supabase.from("content").update({ title, text_link, audio_link, date }).eq("id", id);
 
     if (error) {
         return res.redirect("/?message=There was some error updating the content!");
@@ -286,10 +324,7 @@ app.post("/edit", checkAuth, async (req, res) => {
 
 app.post("/add", checkAuth, async (req, res) => {
     const { title, text_link, audio_link, date } = req.body;
-
-    const { data, error } = await supabase.from("content").insert(
-        { title: title, text_link: text_link, audio_link: audio_link, date: date }
-    );
+    const { error } = await supabase.from("content").insert({ title, text_link, audio_link, date });
 
     if (error) {
         return res.redirect("/?message=There was some error adding the content.");

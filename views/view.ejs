@@ -21,6 +21,38 @@
             <%= data.text %>
         </p>
 
+        <h4>Named Entity Recognition</h4>
+
+        <% if(result && result.length>0)  {%>
+
+            <table class="table">
+                <tr>
+                    <th>WORD</th>
+                    <th>ENTITY</th>
+                    <th>SCORE</th>
+                </tr>
+
+            <% result.forEach(function(result){ %>
+
+               <tr>
+                <td><%= result.word %></td>
+                                <td><%= result.entity %></td>
+                                                <td><%= result.score %></td>
+
+
+                
+
+               </tr>
+            
+            
+            <% }) %>
+                    </table>
+
+        <% } else { %>
+            <p class="small">No Data Found!</p>
+
+            <% } %>
+
     </div>
     <%- include('partials/footer') %>
 </body>
